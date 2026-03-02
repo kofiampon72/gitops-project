@@ -1,0 +1,36 @@
+name: gitops project
+
+on:
+  push:
+    branches:
+      - main  
+
+jobs:
+  create-trello-card:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Linter
+        run: npm run lint
+        
+      - name: Run Tests
+        run: npm run test
+
+      - name: Create Trello Card
+        if: success() 
+        run: |
+          curl -X PUT "https://api.trello.com/1/cards/${{ secrets.TRELLO_CARD_ID }}" \
+            --data "key=${{ secrets.TRELLO_API_KEY }}" \
+            --data "token=${{ secrets.TRELLO_API_TOKEN }}" \
+            --data "name=New Commit: ${{ github.event.head_commit.message }}" \
+            --data "desc=Commit by ${{ github.actor }}. \n\nView details: ${{ github.event.head_commit.url }}"
