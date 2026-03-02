@@ -3,7 +3,11 @@ name: gitops project
 on:
   push:
     branches:
-      - main  
+      - main
+
+    # This prevents triggering when you make changes in any .md file
+    # paths-ignore:
+    #   - "**.md"
 
 jobs:
   create-trello-card:
